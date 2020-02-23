@@ -1,3 +1,0 @@
-(executable
-  (name distance)
-  (libraries compiler-libs.common))
