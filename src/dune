@@ -1,0 +1,3 @@
+(executable
+  (name testing)
+  (libraries compiler-libs.common util))

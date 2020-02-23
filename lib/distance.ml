@@ -98,21 +98,15 @@ let rec getDirectedChild fromAncestor toChild =
 				if !num1 = !num2 then Some(toChild) else getDirectedChild fromAncestor parentNode
 ;;
 
-let rec traverse rootNode =
-	match rootNode with TreeNode(aValue, num, _, _, nsib, fchi) ->
-		print_string aValue;
-		print_string ": ";
-		print_int !num;
-		print_newline ();
-		(match !fchi with
-		| None -> ()
-		| Some(childNode) -> traverse childNode
-		);
-		(match !nsib with
-		| None -> ()
-		| Some(siblingNode) -> traverse siblingNode
-		)
+(*
+let traverse rootNode =
+	let rec helper rootNode acc = 
+		match rootNode with 
+		| None -> acc 0
+		| Some(TreeNode(_, num, _, _, nsib, fchi)) ->
+			
 ;;
+*)
 
 let getParentNum anyNode =
 	match anyNode with TreeNode(_, _, par, _, _, _) ->
@@ -133,7 +127,7 @@ let minList l1 =
 ;;
 
 let costSwap str1 str2 =
-	if String.equal str1 str2 then (1) else 2
+	if str1 = str2 then (1) else 2
 ;;
 
 let distanceE tree1 tree2 =
@@ -299,8 +293,8 @@ let distanceD tree1 tree2 =
 
 
 
-let root = makeroot "root"
-in
+let root = makeroot "root";;
+
 let inter1 = makeroot "inter1"
 in
 let leaf1 = makeroot "leaf1" in
@@ -311,22 +305,22 @@ let inter2 = makeroot "inter2"
 in
 addchild inter2 (makeroot "leaf3");
 addchild inter2 (makeroot "leaf4");
-addchild root inter2;
+addchild root inter2;;
 
 
-let root2 = makeroot "a"
-in
+let root2 = makeroot "a";;
+
 let inter3 = makeroot "b"
 in
-let leafk = makeroot "x" in
+let leafk = makeroot "treeee" in
 addchild inter3 leafk;
 addchild inter3 (makeroot "d");
 addchild root2 inter3;
 let inter4 = makeroot "e"
 in
 addchild inter4 (makeroot "q");
-addchild inter4 (makeroot "root");
-addchild root2 inter4;
+addchild inter4 (makeroot "inter2");
+addchild root2 inter4;;
 
 
 (*
@@ -336,16 +330,6 @@ print_int (bigE (1, 4, 4, 1, 1, 4));
 let bigMINM = distanceMINM root root2 in
 print_int (bigMINM (7, 7));
 *)
-let bigD = distanceD root root2 in
-print_int (bigD (7, 7));
-
-
-
-print_newline ()
-
-
-
-
 
 
 

@@ -1,0 +1,7 @@
+opam-version: "2.0"
+name: "parse-tree-distance"
+version: "0.1"
+synopsis: "Used to find the distance between the parse trees of two ocaml programs"
+authors: "Denali Relles <denali.relles@mail.mcgill.ca>"
+depends: [ "ocaml" "ocamlfind" ]
+build: ["dune" "build" name]

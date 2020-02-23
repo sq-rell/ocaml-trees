@@ -1,60 +1,24 @@
 
-(*
-#use "topfind";;
-
-#load "compiler-libs/ocamlcommon.cma";;
-*)
 
 
-(*
-let x = Parse.implementation (Lexing.from_string ~with_positions:false
-"
-let rec mapTree f (t: 'a tree) =
-match t with
-| Empty -> Empty
-| Node(l,v,r) -> Node((mapTree f l), (f v), (mapTree f r));;
-");;
-
-let y = Parse.implementation (Lexing.from_string ~with_positions:false
-"
-let rec sum f  =
-match f with
-| [] -> 0
-| x :: xs -> x + (sum xs);;
-") in y;;
-
-let z = (Parse.implementation (Lexing.from_string
-"
-let x = 10;;
-"));;
-
-let q = 4;;
-
-*)
 
 
-let x = Parse.implementation (Lexing.from_string ~with_positions:false
-"
-let rec mapTree f (t: 'a tree) =
-match t with
-| Empty -> Empty
-| Node(l,v,r) -> Node((mapTree f l), (f v), (mapTree f r));;
-")
 
-in
 let rec small_print parsa = 
   match parsa with
     | x :: _ -> sprint_str_item x 0
     | _ -> ()
 and
-  sprint_str_item (struc:Parsetree.structure_item) n =
-  match struc.Parsetree.pstr_desc with 
-    | Pstr_value(a,b) -> (print_n n; print_string "Let statements: "; 
-                          match a with 
-                            | Recursive -> (print_n n; print_string "Rec\n")
-                            | Nonrecursive -> (print_n n; print_string "Nonrec\n"));
-        sprint_val_binds b (n+1) 1
-    | _ -> ()
+sprint_str_item (struc:Parsetree.structure_item) n =
+	match struc.Parsetree.pstr_desc with 
+	| Pstr_value(a,b) -> 
+		(print_n n; print_string "Let statements: "; 
+		match a with 
+		| Recursive -> (print_n n; print_string "Rec\n")
+		| Nonrecursive -> (print_n n; print_string "Nonrec\n"));
+		sprint_val_binds b (n+1) 1
+	| Pstr_eval(a, _) -> (sprint_expr(a) n)
+	| _ -> ()
 and
   sprint_val_binds (vales:Parsetree.value_binding list) n times =
   match vales with
@@ -115,7 +79,15 @@ and
 			)
 		)
 	)
-    | Pexp_tuple(listicle) -> (print_string "\n"; sprint_expres listicle (n+1) 1)
+	| Pexp_tuple(listicle) -> (print_string "\n"; sprint_expres listicle (n+1) 1)
+	| Pexp_let(isrec, vlues, nextbit) -> 
+		(print_n n; print_string "Let statements: "; 
+		match isrec with 
+		| Recursive -> (print_n n; print_string "Rec\n")
+		| Nonrecursive -> (print_n n; print_string "Nonrec\n"));
+		sprint_val_binds vlues (n+1) 1;
+		print_n n; print_string "in\n";
+		sprint_expr nextbit (n + 1)
     | _ -> (print_string "\n")
 and
   sprint_pattern (patte: Parsetree.pattern) n = 
@@ -192,6 +164,9 @@ and
   print_n x =
   if x > 0 then (Printf.printf "  "; print_n (x-1))
   else ()
-in
-  small_print x
+;;
+
+
+
+
 
