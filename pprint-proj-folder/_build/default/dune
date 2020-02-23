@@ -1,3 +1,0 @@
-(executable
-  (name this_is_it)
-  (libraries compiler-libs.common))
