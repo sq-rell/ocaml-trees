@@ -98,15 +98,24 @@ let rec getDirectedChild fromAncestor toChild =
 				if !num1 = !num2 then Some(toChild) else getDirectedChild fromAncestor parentNode
 ;;
 
-(*
-let traverse rootNode =
-	let rec helper rootNode acc = 
-		match rootNode with 
-		| None -> acc 0
-		| Some(TreeNode(_, num, _, _, nsib, fchi)) ->
-			
+
+let rec traverse rootNode n =
+	match rootNode with TreeNode(aValue, num, _, _, nsib, fchi) ->
+		Pprint.print_n n;
+		print_string aValue;
+		print_string ": ";
+		print_int !num;
+		print_newline ();
+		(match !fchi with
+		| None -> ()
+		| Some(childNode) -> traverse childNode (n+1)
+		);
+		(match !nsib with
+		| None -> ()
+		| Some(siblingNode) -> traverse siblingNode n
+		)
 ;;
-*)
+
 
 let getParentNum anyNode =
 	match anyNode with TreeNode(_, _, par, _, _, _) ->
@@ -127,7 +136,7 @@ let minList l1 =
 ;;
 
 let costSwap str1 str2 =
-	if str1 = str2 then (1) else 2
+	if str1 = str2 then (0) else 2
 ;;
 
 let distanceE tree1 tree2 =
@@ -291,7 +300,7 @@ let distanceD tree1 tree2 =
 
 
 
-
+(*
 
 let root = makeroot "root";;
 
@@ -322,7 +331,7 @@ addchild inter4 (makeroot "q");
 addchild inter4 (makeroot "inter2");
 addchild root2 inter4;;
 
-
+*)
 (*
 let bigE = distanceE root root2 in
 print_int (bigE (1, 4, 4, 1, 1, 4));

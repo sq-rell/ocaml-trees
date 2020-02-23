@@ -1,10 +1,16 @@
 
+open Util;;
+
 let x = (Parse.implementation (Lexing.from_string
 "
-let x = 10 in x;;
+let x = 10
+and
+y = 12;;
 "))
 in
-Util.Pprint.small_print x
+let y = Converter.makeDistable x (Distance.makeroot "dummyroot")
+in
+(Distance.traverse y 0)
 
 
 (*

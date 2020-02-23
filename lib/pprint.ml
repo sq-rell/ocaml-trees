@@ -5,9 +5,11 @@
 
 
 let rec small_print parsa = 
-  match parsa with
-    | x :: _ -> sprint_str_item x 0
-    | _ -> ()
+	match parsa with
+	| x :: xs -> 
+		sprint_str_item x 0;
+		small_print xs
+	| [] -> ()
 and
 sprint_str_item (struc:Parsetree.structure_item) n =
 	match struc.Parsetree.pstr_desc with 
