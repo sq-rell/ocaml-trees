@@ -150,8 +150,7 @@ let distanceE tree1 tree2 =
 	let size1 = count (Some(tree1)) and size2 = count (Some(tree2))
 	in
 	
-	let returnable = Array.init size1 (fun _ -> (Array.init size1 (fun _ -> (Array.init size1 (fun _ -> (
-		Array.init size2 (fun _ -> (Array.init size2 (fun _ -> (Array.make size2 0))))))))))
+	let returnable = Array.make_matrix size1 size2 (fun _ -> -1)
 	in
 	let rec helperE treeS treeU treeI treeT treeV treeJ accum =
 		match treeI with TreeNode(valI, numI, _, _, _, _) -> match treeJ with TreeNode(valJ, numJ, _, _, _, _) ->
@@ -174,21 +173,22 @@ let distanceE tree1 tree2 =
 			(costSwap valI valJ)
 		else 
 		(if (!numS = !numU && !numI = !numU) || (!numT < !numV && !numJ = !numV) then
-			(accum.(!numS).(!numU).(!numI).(!numT).(getParentNum(treeJ)).(!numJ - 1)) + 1
+			(accum.(!numI).(!numJ - 1) (!numS, !numU, !numT, getParentNum(treeJ))) + 1
 		else 
 		(if (!numS < !numU && !numI = !numU) || (!numT = !numV && !numJ = !numV) then
-			(accum.(!numS).(getParentNum(treeI)).(!numI - 1).(!numT).(!numV).(!numJ)) + 1
+			(accum.(!numI - 1).(!numJ) (!numS, getParentNum(treeI), !numT, !numV)) + 1
 		else
 		let numX = getNodeNum (getDirectedChild treeU treeI) in
 		let numY = getNodeNum (getDirectedChild treeV treeJ) in
-		let rVal1 = accum.(!numS).(numX).(!numI).(!numT).(!numV).(!numJ) in
-		let rVal2 = accum.(!numS).(!numU).(!numI).(!numT).(numY).(!numJ) in
-		let rVal3 = (accum.(!numS).(!numU).(numX - 1).(!numT).(!numV).(numY - 1)) + (accum.(numX).(numX).(!numI).(numY).(numY).(!numJ)) in
+		let rVal1 = accum.(!numI).(!numJ) (!numS, numX, !numT, !numV) in
+		let rVal2 = accum.(!numI).(!numJ) (!numS, !numU, !numT, numY) in
+		let rVal3 = (accum.(numX - 1).(numY - 1) (!numS, !numU, !numT, !numV)) + (accum.(!numI).(!numJ) (numX, numX, numY, numY)) in
 		if rVal1 < rVal2 
 			then (if rVal1 < rVal3 then rVal1 else rVal3)
 			else (if rVal2 < rVal3 then rVal2 else rVal3))))
 		in
-		accum.(!numS).(!numU).(!numI).(!numT).(!numV).(!numJ) <- rval;
+		let oldAccum = accum.(!numI).(!numJ) in
+		accum.(!numI).(!numJ) <- (fun (s,u,t,v) -> if (s = !numS && u = !numU && t = !numT && v = !numV) then rval else oldAccum (s,u,t,v));
 		
 		
 		match !parT with
@@ -238,7 +238,7 @@ let distanceMINM tree1 tree2 =
 	let rec innerhelperMINM treeI treeJ treeS treeT accum matrixMINM =
 		match treeI with TreeNode(_, numI, _, _, _, _) -> match treeJ with TreeNode(_, numJ, parJ, _, _, _) ->
 		match treeS with TreeNode(valS, numS, parS, _, _, _) -> match treeT with TreeNode(valT, numT, parT, _, _, _) -> 
-		let newAccum = ((matrixMINM.(!numS).(!numT)) + (matrixE.(!numS).(getParentNum treeI).(!numI - 1).(!numT).(getParentNum treeJ).(!numJ - 1)) - (costSwap valS valT)) :: accum
+		let newAccum = ((matrixMINM.(!numS).(!numT)) + (matrixE.(!numI - 1).(!numJ - 1) (!numS, getParentNum treeI, !numT, getParentNum treeJ)) - (costSwap valS valT)) :: accum
 		in
 		match !parT with
 		| Some(parentT) -> innerhelperMINM treeI treeJ treeS parentT newAccum matrixMINM

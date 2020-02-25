@@ -2,20 +2,21 @@
 open Util;;
 open Distance;;
 
+
 let tree1 = (Parse.implementation (Lexing.from_string
 "
-let rec sum f  =
-match f with
-| [] -> 0
-| x :: xs -> x + (sum xs);;
+let rec mapTree f (t: 'a tree) =
+match t with
+| Empty -> Empty
+| Node(l,v,r) -> Node((mapTree f l), (f v), (mapTree f r));;
 "))
 in
 let tree2 = Parse.implementation (Lexing.from_string ~with_positions:false
 "
-let rec sum f  =
-match f with
-| [] -> 0
-| x :: xs -> x + (sum xs);;
+let rec mapTree f (t: 'a tree) =
+match t with
+| Empty -> Empty
+| Node(l,v,r) -> Node((mapTree f l), 6, (mapTree f r));;
 ")
 in
 let convertedTree1 = Distance.makeroot "dummyroot" 
@@ -34,11 +35,12 @@ let size2 = (count (Some(convertedTree2)))
 in
 
 
+
+
 let bigD = distanceD convertedTree1 convertedTree2
 in
 let finalDist = bigD.(size1 - 1).(size2 - 1)
 in
-
 
 
 print_int finalDist;
