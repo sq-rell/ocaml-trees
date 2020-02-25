@@ -92,31 +92,34 @@ and
 		sprint_expr nextbit (n + 1)
     | _ -> (print_string "\n")
 and
-  sprint_pattern (patte: Parsetree.pattern) n = 
-  print_n n;
-  print_string "pattern:\n";
-  (match patte.Parsetree.ppat_desc with
-    | Ppat_var(x) -> (
-        print_n (n+1); 
-        print_string (x.Asttypes.txt); 
-        print_string "\n"
-      )
-    | Ppat_construct(id, nxtpat) ->
-        (match id.Asttypes.txt with 
-          | Longident.Lident(stuff) -> (print_n (n+1); print_string stuff; print_string "\n")
-          | _ -> print_string "weird identifier\n");
-        (match nxtpat with
-          | None -> ()
-          | Some (realpat) -> 
-              sprint_pattern realpat (n+1)
-        );
-    | Ppat_tuple(patts) -> (sprint_patts patts (n+1) 1)
-    | Ppat_constraint(innerPattern, _) -> (
+sprint_pattern (patte: Parsetree.pattern) n = 
+	print_n n;
+	print_string "pattern:\n";
+	(match patte.Parsetree.ppat_desc with
+	| Ppat_any -> 
 		print_n (n+1);
-		print_string ("constrained\n");
-		sprint_pattern innerPattern (n+2)
+		print_string "any\n"
+	| Ppat_var(x) -> (
+		print_n (n+1); 
+		print_string (x.Asttypes.txt); 
+		print_string "\n"
 	)
-    | _ -> ())
+	| Ppat_construct(id, nxtpat) ->
+		(match id.Asttypes.txt with 
+		| Longident.Lident(stuff) -> (print_n (n+1); print_string stuff; print_string "\n")
+		| _ -> print_string "weird identifier\n");
+		(match nxtpat with
+		| None -> ()
+		| Some (realpat) -> 
+			sprint_pattern realpat (n+1)
+		);
+	| Ppat_tuple(patts) -> (sprint_patts patts (n+1) 1)
+	| Ppat_constraint(innerPattern, _) -> (
+			print_n (n+1);
+			print_string ("constrained\n");
+			sprint_pattern innerPattern (n+2)
+		)
+	| _ -> ())
 and
   sprint_cases (cases_l: Parsetree.case list) n times =
   match cases_l with
