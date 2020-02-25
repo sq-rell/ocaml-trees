@@ -87,7 +87,13 @@ let generatePreNum rootNode =
 			| Some(siblingNode) -> helper siblingNode acc
 			)
 	in
-	helper rootNode (ref 1);;
+	helper rootNode (ref 0);;
+
+let rec count rootNode =
+	match rootNode with
+	| None -> 0
+	| Some(TreeNode(_, _, _, _, nsib, fchi)) -> 1 + (count !nsib) + (count !fchi)
+;;
 
 let rec getDirectedChild fromAncestor toChild =
 	match toChild with TreeNode(_, _, par, _, _, _) ->
@@ -141,7 +147,12 @@ let costSwap str1 str2 =
 
 let distanceE tree1 tree2 =
 	generatePreNum tree1; generatePreNum tree2;
+	let size1 = count (Some(tree1)) and size2 = count (Some(tree2))
+	in
 	
+	let returnable = Array.init size1 (fun _ -> (Array.init size1 (fun _ -> (Array.init size1 (fun _ -> (
+		Array.init size2 (fun _ -> (Array.init size2 (fun _ -> (Array.make size2 0))))))))))
+	in
 	let rec helperE treeS treeU treeI treeT treeV treeJ accum =
 		match treeI with TreeNode(valI, numI, _, _, _, _) -> match treeJ with TreeNode(valJ, numJ, _, _, _, _) ->
 		match treeU with TreeNode(_, numU, parU, _, _, _) -> match treeS with TreeNode(_, numS, parS, _, _, _) ->
@@ -157,57 +168,50 @@ let distanceE tree1 tree2 =
 		print_newline ();
 		*)
 		
-		let newAccum =
-			(if (!numS = !numU && !numI = !numU) && (!numT = !numV && !numJ = !numV) then
-				(fun coords -> match coords with 
-					(s, u, i, t, v, j) -> if (s = !numS && u = !numU && i = !numI && t = !numT && v = !numV && j = !numJ) 
-					then (costSwap valI valJ) else accum coords)
-			else 
-			if (!numS = !numU && !numI = !numU) || (!numT < !numV && !numJ = !numV) then
-				let rVal = (accum (!numS, !numU, !numI, !numT, getParentNum(treeJ), !numJ - 1)) + 1 in
-				fun coords -> match coords with 
-					(s, u, i, t, v, j) -> if (s = !numS && u = !numU && i = !numI && t = !numT && v = !numV && j = !numJ) 
-					then rVal else accum coords
-			else 
-			if (!numS < !numU && !numI = !numU) || (!numT = !numV && !numJ = !numV) then
-				let rVal = (accum (!numS, getParentNum(treeI), !numI - 1, !numT, !numV, !numJ)) + 1 in
-				fun coords -> match coords with 
-					(s, u, i, t, v, j) -> if (s = !numS && u = !numU && i = !numI && t = !numT && v = !numV && j = !numJ) 
-					then rVal else accum coords
-			else
-			let numX = getNodeNum (getDirectedChild treeU treeI) in
-			let numY = getNodeNum (getDirectedChild treeV treeJ) in
-			let rVal1 = accum (!numS, numX, !numI, !numT, !numV, !numJ) in
-			let rVal2 = accum (!numS, !numU, !numI, !numT, numY, !numJ) in
-			let rVal3 = (accum (!numS, !numU, numX - 1, !numT, !numV, numY - 1)) + (accum (numX, numX, !numI, numY, numY, !numJ)) in
-			let rVal = if rVal1 < rVal2 
-				then (if rVal1 < rVal3 then rVal1 else rVal3)
-				else (if rVal2 < rVal3 then rVal2 else rVal3)
-			in
-			fun coords -> match coords with 
-				(s, u, i, t, v, j) -> if (s = !numS && u = !numU && i = !numI && t = !numT && v = !numV && j = !numJ) 
-					then rVal else accum coords)
+		let rval =
+		
+		(if (!numS = !numU && !numI = !numU) && (!numT = !numV && !numJ = !numV) then
+			(costSwap valI valJ)
+		else 
+		(if (!numS = !numU && !numI = !numU) || (!numT < !numV && !numJ = !numV) then
+			(accum.(!numS).(!numU).(!numI).(!numT).(getParentNum(treeJ)).(!numJ - 1)) + 1
+		else 
+		(if (!numS < !numU && !numI = !numU) || (!numT = !numV && !numJ = !numV) then
+			(accum.(!numS).(getParentNum(treeI)).(!numI - 1).(!numT).(!numV).(!numJ)) + 1
+		else
+		let numX = getNodeNum (getDirectedChild treeU treeI) in
+		let numY = getNodeNum (getDirectedChild treeV treeJ) in
+		let rVal1 = accum.(!numS).(numX).(!numI).(!numT).(!numV).(!numJ) in
+		let rVal2 = accum.(!numS).(!numU).(!numI).(!numT).(numY).(!numJ) in
+		let rVal3 = (accum.(!numS).(!numU).(numX - 1).(!numT).(!numV).(numY - 1)) + (accum.(numX).(numX).(!numI).(numY).(numY).(!numJ)) in
+		if rVal1 < rVal2 
+			then (if rVal1 < rVal3 then rVal1 else rVal3)
+			else (if rVal2 < rVal3 then rVal2 else rVal3))))
 		in
+		accum.(!numS).(!numU).(!numI).(!numT).(!numV).(!numJ) <- rval;
+		
+		
 		match !parT with
-		| Some(parentT) -> helperE treeS treeU treeI parentT treeV treeJ newAccum
+		| Some(parentT) -> helperE treeS treeU treeI parentT treeV treeJ accum
 		| None ->
 		match !parV with
-		| Some(parentV) -> helperE treeS treeU treeI parentV parentV treeJ newAccum
+		| Some(parentV) -> helperE treeS treeU treeI parentV parentV treeJ accum
 		| None ->
 		match !parS with
-		| Some(parentS) -> helperE parentS treeU treeI treeJ treeJ treeJ newAccum
+		| Some(parentS) -> helperE parentS treeU treeI treeJ treeJ treeJ accum
 		| None ->
 		match !parU with
-		| Some(parentU) -> helperE parentU parentU treeI treeJ treeJ treeJ newAccum
+		| Some(parentU) -> helperE parentU parentU treeI treeJ treeJ treeJ accum
 		| None ->
 		match (getNodePlusOne treeJ) with
-		| Some(nextJ) -> helperE treeI treeI treeI nextJ nextJ nextJ newAccum
+		| Some(nextJ) -> helperE treeI treeI treeI nextJ nextJ nextJ accum
 		| None ->
 		match (getNodePlusOne treeI) with
-		| Some(nextI) -> helperE nextI nextI nextI tree2 tree2 tree2 newAccum
-		| None -> newAccum
+		| Some(nextI) -> helperE nextI nextI nextI tree2 tree2 tree2 accum
+		| None -> ()
 	in
-	helperE tree1 tree1 tree1 tree2 tree2 tree2 (fun _ -> raise Not_found)
+	helperE tree1 tree1 tree1 tree2 tree2 tree2 returnable;
+	returnable
 ;;
 
 let getUnwrappedParent bodyNode = 
@@ -219,6 +223,9 @@ let getUnwrappedParent bodyNode =
 
 let distanceMINM tree1 tree2 =
 	generatePreNum tree1; generatePreNum tree2;
+	let size1 = count (Some(tree1)) and size2 = count (Some(tree2)) in
+	let returnable = Array.make_matrix size1 size2 0
+	in
 	(*
 	match getNodePlusOne tree1 with 
 	| None -> (fun _ -> raise Not_found)
@@ -231,7 +238,7 @@ let distanceMINM tree1 tree2 =
 	let rec innerhelperMINM treeI treeJ treeS treeT accum matrixMINM =
 		match treeI with TreeNode(_, numI, _, _, _, _) -> match treeJ with TreeNode(_, numJ, parJ, _, _, _) ->
 		match treeS with TreeNode(valS, numS, parS, _, _, _) -> match treeT with TreeNode(valT, numT, parT, _, _, _) -> 
-		let newAccum = ((matrixMINM (!numS, !numT)) + (matrixE (!numS, getParentNum treeI, !numI - 1, !numT, getParentNum treeJ, !numJ - 1)) - (costSwap valS valT)) :: accum
+		let newAccum = ((matrixMINM.(!numS).(!numT)) + (matrixE.(!numS).(getParentNum treeI).(!numI - 1).(!numT).(getParentNum treeJ).(!numJ - 1)) - (costSwap valS valT)) :: accum
 		in
 		match !parT with
 		| Some(parentT) -> innerhelperMINM treeI treeJ treeS parentT newAccum matrixMINM
@@ -244,58 +251,64 @@ let distanceMINM tree1 tree2 =
 	in
 	let rec outerhelperMINM treeI treeJ accum =
 		match treeI with TreeNode(valI, numI, _, _, _, _) -> match treeJ with TreeNode(valJ, numJ, _, _, _, _) ->
-		let newAccum = 
-		if !numI = 1 then
-			if !numJ = 1 then
-				fun (x,y) -> if x = 1 && y = 1 then (costSwap valI valJ) else accum (x,y)
+		let rval = 
+		if !numI = 0 then
+			if !numJ = 0 then
+				(costSwap valI valJ)
 			else
-				fun (x,y) -> if x = !numI && y = !numJ then 1 + accum (x, y-1) else accum (x,y)
+				1 + accum.(!numI).(!numJ - 1)
 		else
-			if !numJ = 1 then
-				fun (x,y) -> if x = !numI && y = !numJ then 1 + accum (x-1, y) else accum (x,y)
+			if !numJ = 0 then
+				1 + accum.(!numI - 1).(!numJ)
 			else
 				let innerValue = innerhelperMINM treeI treeJ (getUnwrappedParent treeI) (getUnwrappedParent treeJ) [] accum
 				in
-				fun (x,y) -> if (x = !numI) && (y = !numJ) then innerValue + (costSwap valI valJ) else (accum (x,y))
+				innerValue + (costSwap valI valJ)
 		in
+		accum.(!numI).(!numJ) <- rval;
 		match getNodePlusOne treeJ with 
-		| Some(nextJ) -> outerhelperMINM treeI nextJ newAccum
+		| Some(nextJ) -> outerhelperMINM treeI nextJ accum
 		| None -> 
 		match getNodePlusOne treeI with
-		| Some(nextI) -> outerhelperMINM nextI tree2 newAccum
-		| None -> newAccum
+		| Some(nextI) -> outerhelperMINM nextI tree2 accum
+		| None -> ()
 	in
-	outerhelperMINM tree1 tree2 (fun _ -> 100)
+	outerhelperMINM tree1 tree2 returnable;
+	returnable
 ;;
+
 
 let distanceD tree1 tree2 = 
 	let matrixMINM = distanceMINM tree1 tree2
 	in
 	generatePreNum tree1; generatePreNum tree2;
+	let size1 = count (Some(tree1)) and size2 = count (Some(tree2)) in
+	let returnable = Array.make_matrix size1 size2 0
+	in
 	let rec helper treeI treeJ accum = 
 		match treeI with TreeNode(valI, numI, _, _, _, _) -> match treeJ with TreeNode(valJ, numJ, _, _, _, _) ->
-		let newAccum = 
-		if !numI = 1 then
-			if !numJ = 1 then
-				fun (x,y) -> if x = 1 && y = 1 then (costSwap valI valJ) else accum (x,y)
+		let rval = 
+		if !numI = 0 then
+			if !numJ = 0 then
+				(costSwap valI valJ)
 			else
-				fun (x,y) -> if x = !numI && y = !numJ then 1 + accum (x, y-1) else accum (x,y)
+				1 + accum.(!numI).(!numJ - 1)
 		else
-			if !numJ = 1 then
-				fun (x,y) -> if x = !numI && y = !numJ then 1 + accum (x-1, y) else accum (x,y)
+			if !numJ = 0 then
+				1 + accum.(!numI - 1).(!numJ)
 			else
-				let rVal = minList [accum (!numI, !numJ - 1) + 1; accum (!numI - 1, !numJ) + 1; matrixMINM (!numI, !numJ)]
-				in
-				fun (x,y) -> if x = !numI && y = !numJ then rVal else accum (x,y)
+				minList [accum.(!numI).(!numJ - 1) + 1; accum.(!numI - 1).(!numJ) + 1; matrixMINM.(!numI).(!numJ)]
 		in
+		accum.(!numI).(!numJ) <- rval;
 		match getNodePlusOne treeJ with 
-		| Some(nextJ) -> helper treeI nextJ newAccum
+		| Some(nextJ) -> helper treeI nextJ accum
 		| None -> 
 		match getNodePlusOne treeI with
-		| Some(nextI) -> helper nextI tree2 newAccum
-		| None -> newAccum
+		| Some(nextI) -> helper nextI tree2 accum
+		| None -> ()
 	in
-	helper tree1 tree2 (fun _ -> 102)
+	helper tree1 tree2 returnable;
+	returnable
 ;;
 
 
