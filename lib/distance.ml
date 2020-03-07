@@ -145,6 +145,17 @@ let costSwap str1 str2 =
 	if str1 = str2 then (0) else 2
 ;;
 
+let costInsDel str1 =
+	if str1 = "expression.match" then 3 else 1
+;;
+
+let getUnwrappedParent bodyNode = 
+	match bodyNode with TreeNode(_, _, par, _, _, _) ->
+		match !par with
+		| None -> raise (Invalid_argument "expected node to have a parent")
+		| Some(parent) -> parent
+;;
+
 let distanceE tree1 tree2 =
 	generatePreNum tree1; generatePreNum tree2;
 	let size1 = count (Some(tree1)) and size2 = count (Some(tree2))
@@ -173,10 +184,10 @@ let distanceE tree1 tree2 =
 			(costSwap valI valJ)
 		else 
 		(if (!numS = !numU && !numI = !numU) || (!numT < !numV && !numJ = !numV) then
-			(accum.(!numI).(!numJ - 1) (!numS, !numU, !numT, getParentNum(treeJ))) + 1
+			(accum.(!numI).(!numJ - 1) (!numS, !numU, !numT, getParentNum(treeJ))) + (costInsDel valJ)
 		else 
 		(if (!numS < !numU && !numI = !numU) || (!numT = !numV && !numJ = !numV) then
-			(accum.(!numI - 1).(!numJ) (!numS, getParentNum(treeI), !numT, !numV)) + 1
+			(accum.(!numI - 1).(!numJ) (!numS, getParentNum(treeI), !numT, !numV)) + (costInsDel valI)
 		else
 		let numX = getNodeNum (getDirectedChild treeU treeI) in
 		let numY = getNodeNum (getDirectedChild treeV treeJ) in
@@ -189,7 +200,6 @@ let distanceE tree1 tree2 =
 		in
 		let oldAccum = accum.(!numI).(!numJ) in
 		accum.(!numI).(!numJ) <- (fun (s,u,t,v) -> if (s = !numS && u = !numU && t = !numT && v = !numV) then rval else oldAccum (s,u,t,v));
-		
 		
 		match !parT with
 		| Some(parentT) -> helperE treeS treeU treeI parentT treeV treeJ accum
@@ -212,15 +222,7 @@ let distanceE tree1 tree2 =
 	in
 	helperE tree1 tree1 tree1 tree2 tree2 tree2 returnable;
 	returnable
-;;
-
-let getUnwrappedParent bodyNode = 
-	match bodyNode with TreeNode(_, _, par, _, _, _) ->
-		match !par with
-		| None -> raise (Invalid_argument "expected node to have a parent")
-		| Some(parent) -> parent
-;;
-
+and
 let distanceMINM tree1 tree2 =
 	generatePreNum tree1; generatePreNum tree2;
 	let size1 = count (Some(tree1)) and size2 = count (Some(tree2)) in
@@ -256,10 +258,10 @@ let distanceMINM tree1 tree2 =
 			if !numJ = 0 then
 				(costSwap valI valJ)
 			else
-				1 + accum.(!numI).(!numJ - 1)
+				(costInsDel valJ) + accum.(!numI).(!numJ - 1)
 		else
 			if !numJ = 0 then
-				1 + accum.(!numI - 1).(!numJ)
+				(costInsDel valI) + accum.(!numI - 1).(!numJ)
 			else
 				let innerValue = innerhelperMINM treeI treeJ (getUnwrappedParent treeI) (getUnwrappedParent treeJ) [] accum
 				in
@@ -275,10 +277,8 @@ let distanceMINM tree1 tree2 =
 	in
 	outerhelperMINM tree1 tree2 returnable;
 	returnable
-;;
-
-
-let distanceD tree1 tree2 = 
+and
+distanceD tree1 tree2 = 
 	let matrixMINM = distanceMINM tree1 tree2
 	in
 	generatePreNum tree1; generatePreNum tree2;
@@ -292,12 +292,12 @@ let distanceD tree1 tree2 =
 			if !numJ = 0 then
 				(costSwap valI valJ)
 			else
-				1 + accum.(!numI).(!numJ - 1)
+				(costInsDel valJ) + accum.(!numI).(!numJ - 1)
 		else
 			if !numJ = 0 then
-				1 + accum.(!numI - 1).(!numJ)
+				(costInsDel valI) + accum.(!numI - 1).(!numJ)
 			else
-				minList [accum.(!numI).(!numJ - 1) + 1; accum.(!numI - 1).(!numJ) + 1; matrixMINM.(!numI).(!numJ)]
+				minList [accum.(!numI).(!numJ - 1) + (costInsDel valJ); accum.(!numI - 1).(!numJ) + (costInsDel valI); matrixMINM.(!numI).(!numJ)]
 		in
 		accum.(!numI).(!numJ) <- rval;
 		match getNodePlusOne treeJ with 
