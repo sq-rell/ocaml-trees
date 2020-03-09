@@ -83,14 +83,25 @@ and
 	)
 	| Pexp_tuple(listicle) -> (print_string "\n"; sprint_expres listicle (n+1) 1)
 	| Pexp_let(isrec, vlues, nextbit) -> 
-		(print_n n; print_string "Let statements: "; 
+		(print_string "Let statements: "; 
 		match isrec with 
 		| Recursive -> (print_n n; print_string "Rec\n")
 		| Nonrecursive -> (print_n n; print_string "Nonrec\n"));
 		sprint_val_binds vlues (n+1) 1;
 		print_n n; print_string "in\n";
 		sprint_expr nextbit (n + 1)
-    | _ -> (print_string "\n")
+	| Pexp_ifthenelse(a,b,c) ->
+		(print_string "if\n";
+		sprint_expr a (n+1);
+		print_n n; print_string "then\n";
+		sprint_expr b (n+1);
+		(match c with 
+		| None -> ()
+		| Some optExpr -> 
+			(print_n n; print_string "else\n";
+			sprint_expr optExpr (n+1)));
+		)
+    | _ -> raise (Failure "expression print case not implemented")
 and
 sprint_pattern (patte: Parsetree.pattern) n = 
 	print_n n;
@@ -119,7 +130,7 @@ sprint_pattern (patte: Parsetree.pattern) n =
 			print_string ("constrained\n");
 			sprint_pattern innerPattern (n+2)
 		)
-	| _ -> ())
+	| _ ->  raise (Failure "pattern print case not implemented"))
 and
   sprint_cases (cases_l: Parsetree.case list) n times =
   match cases_l with
