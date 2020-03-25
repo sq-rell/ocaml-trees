@@ -2,6 +2,7 @@
 
 
 open Util;;
+open Distance7;;
 
 
 let read_file filename = 
@@ -18,7 +19,7 @@ with End_of_file ->
 
 let tree1 = (Parse.implementation (Lexing.from_string (read_file (String.concat "" ["../sample_files/"; Sys.argv.(1)]))))
 in
-let convertedTree1 = Distance.makeroot ("dummy","root" )
+let convertedTree1 = makeroot ("dummy","root" )
 in 
 (Converter.makeDistable tree1 convertedTree1);
 (*
@@ -27,7 +28,7 @@ in
 *)
 
 
-Distance.traverse  convertedTree1 0
+traverse  convertedTree1 0
 (*
 traverse convertedTree2 0;
 *)

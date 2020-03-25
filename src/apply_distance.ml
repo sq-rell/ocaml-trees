@@ -2,7 +2,7 @@
 
 
 open Util;;
-open Distance;;
+open Distance7;;
 
 
 let costSwap (_, str2a) (_, str2b) =
@@ -11,7 +11,6 @@ let costSwap (_, str2a) (_, str2b) =
 
 let costInsDel str1 =
 	match str1 with (_, scond) -> 
-	if scond = "unknown" then 3 else 
 	if scond = "constructor" then 3 else 1
 ;;
 
@@ -31,11 +30,11 @@ let tree1 = (Parse.implementation (Lexing.from_string (read_file (String.concat 
 in
 let tree2 = (Parse.implementation (Lexing.from_string (read_file (String.concat "" ["../sample_files/"; Sys.argv.(2)]))))
 in
-let convertedTree1 = Distance.makeroot ("dummy","root" )
+let convertedTree1 = makeroot ("dummy","root" )
 in 
 (Converter.makeDistable tree1 convertedTree1);
 
-let convertedTree2 =  (Distance.makeroot ("dummy","root"))
+let convertedTree2 =  (makeroot ("dummy","root"))
 in
 (Converter.makeDistable tree2 convertedTree2);
 
@@ -49,7 +48,7 @@ in
 
 
 
-let bigD = Distance.distanceD convertedTree1 convertedTree2 costSwap costInsDel
+let bigD = distanceD convertedTree1 convertedTree2 costSwap costInsDel
 in
 let finalDist = bigD.(size1 - 1).(size2 - 1)
 in

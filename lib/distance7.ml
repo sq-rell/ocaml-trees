@@ -4,11 +4,6 @@
 
 type 'a tree = TreeNode of 'a * int ref * 'a tree option ref * 'a tree option ref * 'a tree option ref * 'a tree option ref
 
-let printnode (anyNode: 'a tree option) = 
-	match anyNode with 
-	| None -> print_endline "Null branch found"
-	| Some(TreeNode(x, _, _, _, _, _)) -> print_endline x
-
 let makeroot aValue: 'a tree = TreeNode(aValue, ref 1, ref None, ref None, ref None, ref None)
 
 let rec addsibling (existingChild: 'a tree) (newChild: 'a tree) (hopefulParent: 'a tree)=
@@ -48,6 +43,14 @@ let rec getRightChildChild parentNode =
 	match x with
 	| None -> parentNode
 	| Some(tryAgain) -> getRightChildChild(getRightSibling tryAgain);;
+
+
+
+let rec count rootNode =
+	match rootNode with
+	| None -> 0
+	| Some(TreeNode(_, _, _, _, nsib, fchi)) -> 1 + (count !nsib) + (count !fchi)
+;;
 
 (*
 let getNodeMinusOne anyNode =
@@ -89,11 +92,6 @@ let generatePreNum rootNode =
 	in
 	helper rootNode (ref 0);;
 
-let rec count rootNode =
-	match rootNode with
-	| None -> 0
-	| Some(TreeNode(_, _, _, _, nsib, fchi)) -> 1 + (count !nsib) + (count !fchi)
-;;
 
 let rec getDirectedChild fromAncestor toChild =
 	match toChild with TreeNode(_, _, par, _, _, _) ->

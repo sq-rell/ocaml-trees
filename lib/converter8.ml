@@ -1,11 +1,11 @@
 
-open Distance;;
+open Distance8;;
 
 let rec 
 makeDistable parsa topRoot = 
 	match parsa with
 	| x :: xs -> 
-		 (makeDistableStructure x topRoot);
+		(makeDistableStructure x topRoot);
 		makeDistable xs topRoot
 	| [] -> ()
 and
