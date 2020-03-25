@@ -1,4 +1,4 @@
 
 (executables
-  (names apply_print apply_distance testing)
+  (names apply_print apply_distance apply_eight)
   (libraries compiler-libs.common util))
