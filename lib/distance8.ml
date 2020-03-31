@@ -49,12 +49,12 @@ let rec count rootNode =
 ;;
 
 let rec traverse rootNode n =
-	(*match rootNode.data with (first, scond) ->*)
+	match rootNode.data with (first, scond) ->
 	Pprint.print_n n;
-	print_string rootNode.data;
-	print_string ":";(*
+	print_string first;
+	print_string ":";
 	print_string scond;
-	print_string " ? ";*)
+	print_string " ? ";
 	print_int rootNode.pos;
 	print_newline ();
 	(match rootNode.fChi with
