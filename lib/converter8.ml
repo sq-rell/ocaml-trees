@@ -154,7 +154,8 @@ and
 makeDistablePattern (patte: Parsetree.pattern) topRoot = 
 	match patte.Parsetree.ppat_desc with
 	| Ppat_any -> addchild topRoot (makeroot ("pattern","any"))
-	| Ppat_var(_) -> addchild topRoot (makeroot ("pattern","identifier"))
+	| Ppat_var(innards) -> 
+		addchild topRoot (makeroot (innards.txt,"identifier"))
 	| Ppat_construct(id, nxtpat) ->
 		let returnable = makeroot ("pattern","constructor") in
 		(match id.Asttypes.txt with 

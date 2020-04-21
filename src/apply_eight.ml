@@ -48,11 +48,27 @@ let ftree2 = makeroot ("dummy", "root") in
 List.iter (collect ftree2) convertedTree2;
 
 *)
-let ftree1 = List.nth convertedTree1 8 
-in
-let ftree2 = List.nth convertedTree2 8 
+
+let cur_interest = Sys.argv.(3) in
+
+let findname name tee =
+	match tee.fChi with 
+	| None -> false
+	| Some(binding) -> match binding.fChi with
+		| None -> false
+		| Some(var_pat) -> match var_pat.data with
+			| (true_name, _) -> true_name = name
 in
 
+let ftree1 = List.find (findname cur_interest) convertedTree1
+in
+let ftree2 = List.find (findname cur_interest) convertedTree2 
+in
+
+(*
+traverse ftree1 0;
+traverse ftree2 0;
+*)
 
 let size1 = (count (Some(ftree1)))
 in
