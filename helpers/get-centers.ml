@@ -13,11 +13,12 @@ with End_of_file ->
   
 
 let list1 = read_file "array/hw4/add_head.csv"  in
+let radius = 20 in
 
 let rec getzeros distes studes acc =
 	match distes with
 	| y :: ys -> (match int_of_string_opt y with
-		| Some(k) -> if k < 21 then 
+		| Some(k) -> if k < radius  then 
 			getzeros ys (studes+1) (acc + 1)
 			else getzeros ys (studes+1) acc
 		| _ -> getzeros ys (studes+1) acc)

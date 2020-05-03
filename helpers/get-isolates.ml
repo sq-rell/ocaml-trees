@@ -12,7 +12,6 @@ with End_of_file ->
 	(List.rev !lines) ;;
 
 
-
 let list1 = read_file "array/hw4/add_head.csv"
 in
 

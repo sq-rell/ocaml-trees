@@ -12,7 +12,7 @@ with End_of_file ->
 	(List.rev !lines) ;;
   
 
-let list1 = read_file "array/hw4/delete_data.csv"  in
+let list1 = read_file "array/hw4/postorder.csv"  in
 
 let rec getzeros distes studes =
 	match distes with
